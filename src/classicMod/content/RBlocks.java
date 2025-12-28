@@ -772,8 +772,8 @@ public class RBlocks {
         bioCompressor = new GenericCrafter("compressor"){{
             requirements(Category.crafting, with(RItems.denseAlloy, 25, Items.silicon, 30));
             liquidCapacity = 60f;
-            craftTime = 20f;
-            outputLiquid = new LiquidStack(Liquids.oil, 18f / 60f);
+            craftTime = 12.5f;
+            outputLiquid = new LiquidStack(Liquids.oil, 20f / 60f);
             size = 2;
             health = 320;
             hasLiquids = true;
@@ -796,7 +796,7 @@ public class RBlocks {
         growthChamber = new AttributeCrafter("growth-chamber"){{
             requirements(Category.production, with(Items.lead, 25, RItems.denseAlloy, 15, Items.silicon, 10));
             outputItem = new ItemStack(RItems.biomatter, 1);
-            craftTime = 120;
+            craftTime = 85;
             size = 2;
             hasLiquids = true;
             hasPower = true;

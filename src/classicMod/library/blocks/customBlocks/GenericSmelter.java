@@ -159,7 +159,6 @@ public class GenericSmelter extends GenericCrafter {
 
         @Override
         public void updateTile() {
-            Log.info(hasFuel(fuelItems));
             if (efficiency > 0 && hasFuel(fuelItems)) {
                 activeScl = Mathf.lerpDelta(activeScl, warmupTarget(), warmupSpeed);
                 fuelProgress += getProgressIncrease(burnTime);

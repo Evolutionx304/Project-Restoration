@@ -5,6 +5,7 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Angles;
 import arc.math.Mathf;
 import arc.util.Log;
+import arc.util.Time;
 import arc.util.io.Reads;
 import arc.util.io.Writes;
 import mindustry.entities.Effect;
@@ -52,8 +53,8 @@ public class HeatedItemTurret extends ItemTurret {
         @Override
         public void updateTile(){
             //heat approaches target at the same speed regardless of efficiency
-            multiplier = 1f + ((coolant.consumes(liquids.current()) && this.liquids.get(liquids.current()) > 0f) ? coolant.amount * (this.liquids.get(liquids.current()) / this.block.liquidCapacity) * coolantMultiplier * liquids.current().heatCapacity : 0f);
-            if (warmth > 0 && !isActive() || isHot) warmth = Mathf.approachDelta(warmth, 0f, (heatPerShot / 5f) * multiplier * delta());
+            multiplier = delta() + ((coolant.consumes(liquids.current()) && this.liquids.get(liquids.current()) > 0f) ? coolant.amount * (this.liquids.get(liquids.current()) / this.block.liquidCapacity) * coolantMultiplier * liquids.current().heatCapacity : 0f);
+            if (warmth > 0 && !isActive() || isHot) warmth = Mathf.approachDelta(warmth, 0f, (heatPerShot / 5f) * multiplier);
 
             if (warmth >= heatMaximum) {
                 isHot = true;
@@ -86,7 +87,7 @@ public class HeatedItemTurret extends ItemTurret {
         @Override
         protected void bullet(BulletType type, float xOffset, float yOffset, float angleOffset, Mover mover) {
             queuedBullets --;
-            warmth += heatPerShot * delta() * (type.ammoMultiplier / 3f); //Mathf.approachDelta(heat, heatOutput * efficiency, warmupRate * delta());
+            warmth += heatPerShot * (type.ammoMultiplier / 3f) * delta(); //Mathf.approachDelta(heat, heatOutput * efficiency, warmupRate * delta());
 
             if(isHot || dead || (!consumeAmmoOnce && !hasAmmo())) return;
 

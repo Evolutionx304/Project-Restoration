@@ -45,9 +45,9 @@ import static mindustry.Vars.*;
 
 public class ClassicMod extends Mod{
     /** Mod's current Version **/
-    public static String ModVersion = "6.0 Beta";
+    public static String ModVersion = "6.0 Beta (64-bit)";
     /** Mod's current Build **/
-    public static final String BuildVer = "16";
+    public static final String BuildVer = "17";
     /** Mod's internal name **/
     public static String internalMod = "restored-mind";
     public static LoadedMod resMod = mods.locateMod(internalMod);

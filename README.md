@@ -1,7 +1,7 @@
 <p align="center">
   <img width="570" height="174" src="assets/sprites-override/ui/logo.png"> </p>
 <p align="center"> Much more advance scripting, more classic buildings, etc. </p>
-<p align="center"><strong> v5.0 Alpha </strong></p>
+<p align="center"><strong> v6.0 Alpha </strong></p>
 
 > [!NOTE]
 > This Mod is still in Beta/Alpha expect bugs.
@@ -14,7 +14,9 @@
 
 ## --- Additional Notes ---
 
-_still in beta. (who knows when it'll end)_
+this is a 64-bit branch, considered that Mindustry at v156.2 uses 64 ONLY well as far as that error goes.
+
+_still in ~~beta~~ alpha. (no roadmap since when this mod came out lol)_
 
 ## --- Mod Includes ---
 

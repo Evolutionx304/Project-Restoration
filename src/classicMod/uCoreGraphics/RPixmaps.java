@@ -12,12 +12,19 @@ public class RPixmaps extends Pixmaps {
     public static Pixmap replaceWhite(PixmapRegion source, Color replaceTo){
         Pixmap out = new Pixmap(source.width, source.height);
 
+        Color tmp = new Color();
         for(int y = 0; y < source.height; y++){
             for(int x = 0; x < source.width; x++){
                 int c1 = source.getRaw(x, y);
-                boolean isWhite = c1 == 0xFFFFFFFF;
+                tmp.set(c1);
 
-                int val = Tmp.c1.set(isWhite ? replaceTo.rgba() : c1).rgba();
+                boolean isWhite =
+                        tmp.r > 0.95f &&
+                                tmp.g > 0.95f &&
+                                tmp.b > 0.95f &&
+                                tmp.a > 0.95f;
+
+                int val = isWhite ? replaceTo.rgba() : c1;
                 out.setRaw(x, y, val);
             }
         }

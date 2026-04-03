@@ -129,7 +129,7 @@ public class ScatterSilo extends Block {
             }
 
             if (shoot && efficiency >= 1f && bulletType != null && ammoTotal > 0f) warmup = Mathf.approachDelta(warmup, 1f, warmupSpeed); else warmup = Mathf.approachDelta(warmup, 0f, warmupSpeed);
-            if (warmup >= 1f || manualActivation){
+            if ((warmup >= 1f || manualActivation) && ammoStacks.size > 0){
                 siloLaunch.at(this);
 
                 ItemEntry entry = ammoStacks.peek();

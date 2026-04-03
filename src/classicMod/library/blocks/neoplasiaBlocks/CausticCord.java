@@ -77,6 +77,12 @@ public class CausticCord extends NeoplasmBlock implements Autotiler {
 
     public class CordBuild extends NeoplasmBuilding {
 
+        public int successScore = 0;        // how “good” this cord’s path is
+        public float pheromone = 0f;        // slime-mold-like trail strength
+        public float pheromoneDecay = 0.002f;
+        public float pheromoneDeposit = 0.05f;
+
+
         //TODO make it work YIPPE
         int facingRot = 1;
         public float progress;
@@ -162,49 +168,110 @@ public class CausticCord extends NeoplasmBlock implements Autotiler {
             return dest.acceptItem(this, item) && dest.team == this.team;
         }
 
+        public boolean shouldFuseWith(CordBuild other) {
+            if (other == null) return false;
+
+            // fuse only if the other cord has a better path
+            return other.successScore > this.successScore ||
+                    other.pheromone > this.pheromone;
+        }
+
+        public boolean beneficialLoop(Tile next) {
+            // avoid loops unless:
+            // 1. next tile has high pheromone (successful path)
+            // 2. or next tile is closer to target
+            float phero = 0f;
+
+            if (next.build instanceof CordBuild c) {
+                phero = c.pheromone;
+            }
+
+            boolean nearTarget = (task == PathfinderCustom.fieldVent && next.floor().attributes.get(Attribute.steam) > 0) ||
+                    (task == PathfinderCustom.fieldCore && Units.findEnemyTile(team, next.x, next.y, 200f, b -> true) != null);
+
+            return phero > 0.2f || nearTarget;
+        }
+
+        public void reinforcePath() {
+            successScore += 3;
+            pheromone = Mathf.clamp(pheromone + pheromoneDeposit, 0f, 10f);
+
+            // reinforce backwards
+            CordBuild cur = this.prev;
+            int depth = 0;
+
+            while (cur != null && depth < 20) {
+                cur.successScore += 1;
+                cur.pheromone = Mathf.clamp(cur.pheromone + pheromoneDeposit * 0.5f, 0f, 10f);
+                cur = cur.prev;
+                depth++;
+            }
+        }
+
+
         @Override
         public void growCord(Block block) {
 
             retry++;
             growRestart++;
-            for (int a = 0; a < 4; a++) {
-                Tile man = nearbyTile(Mathf.mod(facingRot + a, 4));
-                if (man != null && backTile() != null && backTile() != man){
-                    if (man.build instanceof NeoplasmBuilding) {
-                        retry = 0;
-                        break;
-                    }
-                }
+
+            // 1. Smarter task escalation
+            if (task == 0) task = PathfinderCustom.fieldVent;
+
+            if (growRestart >= 3) {
+                if (task == PathfinderCustom.fieldVent) task = PathfinderCustom.fieldOres;
+                else if (task == PathfinderCustom.fieldOres) task = PathfinderCustom.fieldCore;
+                else task = PathfinderCustom.fieldVent;
+                growRestart = 0;
             }
 
-
-            // TODO better cordAI
-            task = (task != 0) ? task : PathfinderCustom.fieldVent;
+            // 2. Pathfind
             Tile next = pathfind(task);
+            if (next == null) {
+                growRestart = 3;
+                return;
+            }
 
-
-            if (
-                    passable(next, true)
-            ) {
-                int rot = this.tile.relativeTo(next);
-                Tile nearRight = next.nearby(Mathf.mod(rot + 1, 4));
-                Tile nearLeft = next.nearby(Mathf.mod(rot - 1, 4));
-                if (
-                        passable(nearRight, false)
-                        && passable(nearLeft, false)
-                ) {
-                    if (!CantReplace(next.block())) next.setBlock(RBlocks.cord, team);
-                    if (next.build != null && next.build instanceof CordBuild cordBuild) {
-                        cordBuild.task = Mathf.randomBoolean(0.98f) ? task :
-                                Mathf.randomBoolean() ? PathfinderCustom.fieldOres : Mathf.randomBoolean() ? PathfinderCustom.fieldCore : PathfinderExtended.fieldVent;
-                        cordBuild.facingRot = rot;
-                        cordBuild.prev = this;
+            // 3. Fusion check (slime mold)
+            for (int i = 0; i < 4; i++) {
+                Tile near = next.nearby(i);
+                if (near != null && near.build instanceof CordBuild other) {
+                    if (shouldFuseWith(other)) {
+                        this.prev = other;
+                        this.task = other.task;
+                        this.successScore = Math.max(this.successScore, other.successScore);
+                        this.pheromone += other.pheromone * 0.5f;
+                        return;
                     }
-                    growRestart = 0;
                 }
             }
+
+            // 4. Loop avoidance unless beneficial
+            if (next.build instanceof CordBuild && !beneficialLoop(next)) {
+                growRestart++;
+                return;
+            }
+
+            // 5. Place cord
+            if (!CantReplace(next.block())) next.setBlock(RBlocks.cord, team);
+
+            if (next.build instanceof CordBuild cordBuild) {
+                cordBuild.task = task;
+                cordBuild.facingRot = tile.relativeTo(next);
+                cordBuild.prev = this;
+
+                // deposit pheromone
+                this.pheromone = Mathf.clamp(this.pheromone + pheromoneDeposit, 0f, 10f);
+            }
+
+            // 6. Reinforce if valuable
+            if (next.floor().attributes.get(Attribute.steam) > 0) reinforcePath();
+
+            growRestart = 0;
             super.growCord(block);
         }
+
+
 
         public Tile pathfind(int pathTarget) {
             int costType = Pathfinder.costNeoplasm;
@@ -221,6 +288,7 @@ public class CausticCord extends NeoplasmBlock implements Autotiler {
         @Override
         public void update() {
             super.update();
+            pheromone = Mathf.clamp(pheromone - pheromoneDecay, 0f, 10f);
 
             if (back() instanceof NeoplasmBuilding neoplasmBuilding){
                 if (neoplasmBuilding.reset){

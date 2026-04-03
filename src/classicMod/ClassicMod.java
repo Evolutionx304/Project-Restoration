@@ -19,6 +19,7 @@ import classicMod.library.ui.menu.*;
 import classicMod.library.unitType.unit.JumpingUnit;
 import mindustry.Vars;
 import mindustry.ai.types.CommandAI;
+import mindustry.content.Blocks;
 import mindustry.game.EventType;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.gen.*;
@@ -29,6 +30,8 @@ import mindustry.type.*;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.*;
 import mindustry.ui.fragments.MenuFragment;
+import mindustry.world.Block;
+import mindustry.world.blocks.distribution.Duct;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -498,6 +501,12 @@ public class ClassicMod extends Mod{
                 if(a.flying)a.controller = u -> new ReplacementFlyingAI();
                 if(!a.flying)a.controller = u -> new ReplacementGroundAI();
             }
+        }
+        // mindustry.content.Blocks.thoriumReactor.buildType = () ->
+
+        // Default every duct to be ductJunction
+        for (Block block : content.blocks()){
+            if (block instanceof Duct duct && duct.junctionReplacement == null) duct.junctionReplacement = RBlocks.ductJunction;
         }
     }
 }

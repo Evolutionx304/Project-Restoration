@@ -4,7 +4,7 @@
 <p align="center"><strong> v5.0 Alpha </strong></p>
 
 > [!NOTE]
-> This Mod is still in Beta/Alpha expect bugs.
+> This Mod is still in Beta/Alpha expect bugs. :D
 
 ![GitHub Release](https://img.shields.io/github/v/release/VvSeanGTvV/Project-Restoration?display_name=tag&style=for-the-badge&label=Latest%20Build)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/VvSeanGTvV/Project-Restoration/latest/total?style=for-the-badge&label=Latest%20Build%20Downloads)
